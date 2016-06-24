@@ -98,6 +98,6 @@ class HZClollectionFlowLayout: UICollectionViewLayout {
         
         
         let totalNum = collectionView?.numberOfItemsInSection(0)
-        
+        return layoutAttributes
     }
 }
