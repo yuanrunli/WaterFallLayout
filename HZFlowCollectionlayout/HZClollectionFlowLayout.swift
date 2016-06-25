@@ -8,17 +8,21 @@
 
 import UIKit
 
-protocol HZClollectionFlowLayoutDelegate: NSObjectProtocol {
+@objc protocol HZClollectionFlowLayoutDelegate: NSObjectProtocol {
     // 用来设置每一个cell的高度或宽度
-    func heightOrWidthForItemAtIndexPath(indexPath: NSIndexPath) -> CGFloat
+   optional func heightForItemAtIndexPath(indexPath: NSIndexPath) -> CGFloat
+    // 用来设置每一个cell的高度或宽度
+   optional func widthForItemAtIndexPath(indexPath: NSIndexPath) -> CGFloat
 }
 
 class HZClollectionFlowLayout: UICollectionViewLayout {
     
     //布局集合
-    private var  layoutAttributes: [UICollectionViewLayoutAttributes] = []
+    private var  layoutAttributesArr: [UICollectionViewLayoutAttributes] = []
     //屏幕宽度
     private var oldScreenWidth: CGFloat = 0.0
+    
+    weak var flowLayoutdelegate: HZClollectionFlowLayoutDelegate?
     // cell之间的间隙 默认为5.0
     var itemSpace: CGFloat = 5.0
     //列 cell的width固定，纵向滑动的瀑布流
@@ -57,19 +61,19 @@ class HZClollectionFlowLayout: UICollectionViewLayout {
     //MARK:  override
     override func prepareLayout() {
         super.prepareLayout()
-        layoutAttributes = computeLayoutAttributes()
+        layoutAttributesArr = computeLayoutAttributes()
         oldScreenWidth = UIScreen.mainScreen().bounds.size.width
     }
     
     // Apple建议要重写这个方法, 因为某些情况下(delete insert...)系统可能需要调用这个方法来布局
     override func layoutAttributesForItemAtIndexPath(indexPath: NSIndexPath) -> UICollectionViewLayoutAttributes? {
-        return layoutAttributes[indexPath.row]
+        return layoutAttributesArr[indexPath.row]
     }
     
     // 必须重写这个方法来返回计算好的LayoutAttributes
     override func layoutAttributesForElementsInRect(rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         
-        return layoutAttributes
+        return layoutAttributesArr
     }
     
     
@@ -90,14 +94,48 @@ class HZClollectionFlowLayout: UICollectionViewLayout {
     //MARK: 计算
     // 计算所有的UICollectionViewLayoutAttributes
     func computeLayoutAttributes() -> [UICollectionViewLayoutAttributes] {
+        
+        
+        
+        return layoutAttributesArr
+    }
+    
+    func verticalToScoll(columns: Int) -> [UICollectionViewLayoutAttributes]?
+    {
         var x: CGFloat = 0.0
         var y: CGFloat = 0.0
-        var width: CGFloat = 0.0
-        var height: CGFloat = 0.0
+        var cellWidth: CGFloat = 0.0
+        var cellHeight: CGFloat = 0.0
         var currentItemIndex = 0
         
+        let totalNum = collectionView!.numberOfItemsInSection(0)
+        if columns > 0
+        { //向下瀑布流 width固定
+            cellWidth = (collectionView!.frame.size.width - itemSpace*(CGFloat(columnsNum) + 1) )/CGFloat(columnsNum)
+        }
+        guard let delegate: HZClollectionFlowLayoutDelegate = flowLayoutdelegate else
+        {
+            assert(false,"请实现HZClollectionFlowLayoutDelegate")
+            return nil
+        }
         
-        let totalNum = collectionView?.numberOfItemsInSection(0)
-        return layoutAttributes
+        for index in 0..<totalNum
+        {
+            x = CGFloat(currentItemIndex) * cellWidth + (CGFloat(currentItemIndex)+1)*itemSpace
+            y = endPosition[currentItemIndex] + itemSpace
+            if let  height: CGFloat = delegate.heightForItemAtIndexPath!(NSIndexPath(forRow:index ,inSection:0)){
+                cellHeight = height
+            }
+            if currentItemIndex < columns
+            {
+                currentItemIndex += 1
+            }
+            if let layoutAttributes: UICollectionViewLayoutAttributes =  initialLayoutAttributesForAppearingItemAtIndexPath(NSIndexPath(forRow:index ,inSection:0)){
+                layoutAttributes.frame = CGRect(x: x,y: y,width: cellWidth,height: cellHeight)
+                layoutAttributesArr.append(layoutAttributes)
+            }
+        }
+        
+        return layoutAttributesArr
     }
 }
