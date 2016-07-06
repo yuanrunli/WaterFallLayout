@@ -48,7 +48,7 @@ class ViewController: UICollectionViewController{
         self.collectionView?.addFooterRefresh(closure: { 
             dispatch_after(afterTime(3), dispatch_get_global_queue(0, 0), {
                 self.collectionView?.stopPullRefresh()
-                self.cellCount+=1
+                self.cellCount-=1
                 dispatch_async(dispatch_get_main_queue(), {
                     self.collectionView?.reloadData()
                 })
@@ -99,21 +99,5 @@ extension ViewController {
         return cell
     }
     
-//    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-//        if indexPath.row % 2 == 0 {//偶数
-//            cellCount -= 1
-//            cellHeight.removeAtIndex(indexPath.row)
-//            collectionView.performBatchUpdates({
-//                collectionView.deleteItemsAtIndexPaths([indexPath])
-//                }, completion: nil)
-//        } else {
-//            cellCount += 1
-//            cellHeight.append(CGFloat(arc4random() % 150 + 40))
-//            
-//            collectionView.performBatchUpdates({
-//                collectionView.insertItemsAtIndexPaths([indexPath])
-//                }, completion: nil)
-//        }
-//    }
 }
 

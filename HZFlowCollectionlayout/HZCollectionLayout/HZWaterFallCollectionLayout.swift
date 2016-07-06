@@ -27,21 +27,29 @@ class HZWaterFallCollectionLayer: HZClollectionLayout {
     //overrid UICollectionViewLayout
     override func collectionViewContentSize() -> CGSize {
         let max = maxYOfColums.maxElement()!
-        return CGSize(width:0,height: max)
+        let height: CGFloat
+        if max>UIScreen.mainScreen().bounds.size.height {
+            height = max
+        }else{
+            height = UIScreen.mainScreen().bounds.size.height
+        }
+        return CGSize(width:0,height:height)
     }
     //overrid HZClollectionLayout
-    override func computeLayoutAttributes() -> [UICollectionViewLayoutAttributes] {
+    override func computeLayoutAttributes() ->  [UICollectionViewLayoutAttributes]{
+        
         return verticalToScoll(columnsNum)
     }
     
     
-    //垂直瀑布计算方式
+    //垂直瀑布计算方式 缓存size没有，需要优化
     func verticalToScoll(columns: Int) -> [UICollectionViewLayoutAttributes]
     {
         maxYOfColums = []
         for _ in 0..<columns {
             maxYOfColums.append(0)
         }
+        
         var x: CGFloat = 0.0
         var y: CGFloat = 0.0
         var cellHeight: CGFloat = 0.0

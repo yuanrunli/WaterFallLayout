@@ -32,7 +32,14 @@ class HZWaterFallHorizontalLayout: HZClollectionLayout {
     //overrid UICollectionViewLayout
     override func collectionViewContentSize() -> CGSize {
         let max = maxXOfLines.maxElement()!
-        return CGSize(width:max,height: 0)
+        let width: CGFloat
+        if max>UIScreen.mainScreen().bounds.size.width {
+            width = max
+        }else{
+            width = UIScreen.mainScreen().bounds.size.width
+        }
+
+        return CGSize(width:width,height: 0)
     }
     //overrid HZClollectionLayout
     override func computeLayoutAttributes() -> [UICollectionViewLayoutAttributes] {
